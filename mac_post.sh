@@ -7,11 +7,11 @@
 
 #. /home/pi/whois/shell/set_var.sh
 
-ip_head="192.168.11."
-ip_min=2
-ip_max=20
+ip_head="192.168.1."
+ip_min=10
+ip_max=50
 ping_cnt=3
-post_url="192.168.11.99"
+post_url="www.livelynk.jp"
 
 if [ ! -s "macs.txt" ]; then
     #中身が空なら
@@ -29,6 +29,8 @@ for ip in `seq $ip_min $ip_max`;do arping -c $ping_cnt $ip_head$ip | grep -io '[
 array=(`cat macs.txt`)
 jo "${array[@]}" -a -p > json.txt
 ##### 環境毎にurl 変更を行うこと ######
-curl -F "mac=`cat json.txt`" http://$post_url/inport_post/mac_address
+curl --digest -u "GeekOffice:kogaidan" -F "mac=`cat json.txt`" http://www.livelynk.jp/inport_post/mac_address
+echo "now posted"
+#curl -F "mac=`cat json.txt`" http://192.168.1.74/inport_post/mac_address
 # テキストを空にする
 #: > macs.txt
