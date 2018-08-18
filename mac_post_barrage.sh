@@ -10,8 +10,18 @@
 ip_head="192.168.1."
 ip_min=10
 ip_max=50
-ping_cnt=3
+ping_cnt=1
 post_url="www.livelynk.jp"
+
+
+# 恵比寿初期稼働の状態から反応のない端末に連続してpingを送る処理を追加
+
+#arp -d 192.168.1.!!!ore!!! #自分のIPを入れる処理を上に書く
+#echo "arp -d end"
+ping -b -c 1 192.168.1.255
+echo "ping .255 end"
+arp -a
+echo "arp -a"
 
 if [ ! -s "macs.txt" ]; then
     #中身が空なら
@@ -29,7 +39,7 @@ for ip in `seq $ip_min $ip_max`;do arping -c $ping_cnt $ip_head$ip | grep -io '[
 array=(`cat macs.txt`)
 jo "${array[@]}" -a -p > json.txt
 ##### 環境毎にurl 変更を行うこと ######
-curl -v -k --sslv3 --digest -u "GeekOffice:kogaidan" -F "mac=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
+curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "mac=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
 echo "now posted"
 #curl -F "mac=`cat json.txt`" http://192.168.1.74/inport_post/mac_address
 # テキストを空にする
