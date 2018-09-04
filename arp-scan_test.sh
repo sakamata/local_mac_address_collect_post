@@ -18,30 +18,21 @@ do
     eval ARRAY=("$(sed -e "s/'/'\\\\''/g" -e "s/\t/'\t'/g" -e "s/^/'/" -e "s/$/'/" <<< "$line")")
     # 配列変数macに値を追加、macの配列を作る
     mac+=(`echo $line | grep -io '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}'`)
+
     # 配列変数macに値を追加、ipの配列を作る
     ip+=(`echo $line | grep -Eio '^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}'`)
     # 3番目の要素 vendorを配列変数に追加
     vendor+=("${ARRAY[2]}")
 done < ./res.txt
 
+# 改行を配列の区切りとして設定
 IFS=$'\n'
-array_mac=(`echo "${mac[*]}"`)
-echo "${array_mac[*]}"
-
-array_ip=(`echo "${ip[*]}"`)
-echo "${array_ip[*]}"
-
-array_vendor=(`echo "${vendor[*]}"`)
-echo "${array_vendor[*]}"
-
+vendor=(`echo "${vendor[*]}"`)
 
 # テキストをjson化する。
-# ***ToDo*** 他の値をもたせステータスやセキュリティの確保
 macs=($macs)
 ips=($ips)
 
-# 改行付きでecho出力
-# echo -e "$json"
 community_id=GeekOfficeEbisu
 router_id=1
 time=$(date +%s)
@@ -50,9 +41,7 @@ secret=hoge
 hash=(`echo -n $time$secret | shasum -a 256 | awk '{print $1}'`)
 
 json=$(jo status=ok hash=$hash time=$time community_id=$community_id router_id=$router_id mac=$(jo "${mac[@]}" -a)  vendor=$(jo "${vendor[@]}" -a))
-# echo $hash
 echo -e $json
-
 
 ##### 環境毎にurl 変更を行うこと ######
 # curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "mac=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
