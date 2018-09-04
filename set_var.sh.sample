@@ -1,6 +1,0 @@
-# ルーターのIPアドレスの設定及びPOST先のIPかドメインを記載
-ip_head="192.168.1."
-ip_min=2
-ip_max=50
-ping_cnt=3
-post_url="livelynk.jp"
