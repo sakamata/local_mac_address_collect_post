@@ -18,10 +18,10 @@ else
     touch old.txt
 fi
 
-# 取得内容が前回と同じ場合は処理を中止
 check=`diff -q now.txt old.txt`
 diff -q now.txt old.txt
-if [ -z "$check" ]; then
+# 定期POSTで、かつ取得内容が前回と同じ場合は処理を中止する
+if [ -z "$check" -a ${trigger} = "everytime" ]; then
    echo "変化無し exitします"
    exit
 fi

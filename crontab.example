@@ -1,0 +1,12 @@
+# raspberryPI本体の定期POSTを行うcron設定の例
+# rootユーザーで設定を行い、実行ファイルへのパスは絶対pathで記述します。
+
+
+# env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
+*/1 * * * * export $(cat ~/env| xargs); bash /mnt/shell/arp-scan_test.sh
+
+# 定期的に強制POSTを実施するcron
+*/20 * * * * export $(cat ~/env | cat ~/env.forced | xargs); bash /mnt/shell/arp-scan_test.sh
+
+# 一日一回深夜にリブートさせる
+0 3 * * * /sbin/reboot
