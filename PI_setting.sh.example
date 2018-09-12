@@ -51,6 +51,8 @@ git config --global user.name $github_name
 git config --global user.email $github_email
 # gitエディタを Vim に設定
 git config --global core.editor 'vim -c "set fenc=utf-8"'
+# パーミッション変更を無視
+git config core.filemode false
 # git diff に色付け
 git config --global color.diff auto
 git config --global color.status auto
@@ -92,10 +94,10 @@ echo "root userに変更します。"
 expect -c "
 spawn su -
 expect \"パスワード:\"
-send  \"pi\n\"
+send  \"$root_pass\n\"
 interact
 "
-
+cd
 touch env
 chmod 744 env
 
@@ -114,6 +116,7 @@ echo "env 関連のファイルをコピーします"
 # cron の為の設定ファイルを root直下と pi user のホームディレクトリに配置する
 cp env /home/pi/local_mac_address_collect_post/env
 chmod 644 /home/pi/local_mac_address_collect_post/env
+chown pi:pi /home/pi/local_mac_address_collect_post/env
 cp /home/pi/local_mac_address_collect_post/env.forced env.forced
 
 echo "cronの設定を行います"
