@@ -1,3 +1,5 @@
+wpa_supplicant.conf
+PI_setting.sh
 env
 now.txt
 old.txt

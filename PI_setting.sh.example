@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# これはlivelynkのraspberryPI環境を構築する為のスクリプトです。
+# RaspberryPIに別のホストマシンからSSHログイン後に実行します。
+
+# ---------------------------------------------------
+
+# 以下の変数にご自分の環境にあった値を入れてください。
+
+# githubのアカウント
+github_name="First-name Family-name"
+github_email="username@example.com"
+# ifconfig で表示されたネットワークのタイプを設定します。 wlan wlan0 等
+net=net_type
+# コミュニティ単位で指定された ID をセットします。
+community_id=unique_community_id
+# ルーターのIDであるユニークの数値をセットします。
+router_id=router_number_int
+# 指定されたハッシュ値をセットします。
+secret=secret_key_hash
+# Webアプリ側にPOSTを行うurlを指定します。通常はこのままです。
+post_url=https://www.livelynk.jp/inport_post/mac_address
+
+# root user のパスワードを指定します。
+root_pass=pi
+# pi user のパスワードを指定します。
+pi=raspberry
+
+# ---------------------------------------------------
+
+
+# パッケージの最新化
+echo "更新作業をします"
+sudo apt -y update
+sudo apt -y upgrade
+echo "更新作業が終わりました"
+
+# コマンドの返答を識別して次の入力を自動的に行う
+# expect vim
+echo "vimの導入と設定をします"
+sudo apt-get -y install expect vim
+
+# vim の右クリックビジュアルモードを無効
+touch ~/.vimrc >> set mouse-=a
+source ~/.vimrc
+echo "vimの導入と設定が終わりました"
+
+echo "gitの設定を行います。"
+# gitの基本設定
+git config --global user.name $github_name
+git config --global user.email $github_email
+# gitエディタを Vim に設定
+git config --global core.editor 'vim -c "set fenc=utf-8"'
+# git diff に色付け
+git config --global color.diff auto
+git config --global color.status auto
+git config --global color.branch auto
+# lessの設定をutf-8に変更
+vim ~/.bashrc >> export LESSCHARSET=utf-8
+source ~/.bashrc
+
+echo "各種アプリケーションのインストールを行います。"
+# 日本語IME mozc
+sudo apt -y install uim uim-mozc
+
+# arping(不要?)
+sudo apt -y install arping
+
+# bash上でjsonを扱える jq 及び jo
+sudo apt -y install jq jo
+
+# arp-scanに必要なパッケージをインストール
+sudo apt -y install autoconf libpcap-dev
+
+echo "arp-scanのインストールと設定を行います。"
+# arp-scanをインストール
+cd /tmp
+git clone https://github.com/royhills/arp-scan.git
+cd arp-scan
+autoreconf --install
+./configure
+make
+sudo make install
+cd
+
+echo "arp-scanの動作確認をします。"
+# コマンド打って IP mac vendor の一覧が出るか確認
+sudo arp-scan -l --interface $net
+
+echo "root userに変更します。"
+# root userに変更 cronの為の設定
+expect -c "
+spawn su -
+expect \"パスワード:\"
+send  \"pi\n\"
+interact
+"
+
+touch env
+chmod 744 env
+
+# env に環境変数を書き込む
+echo "env に環境変数を書き込みます"
+cat << EOS > env
+trigger=everytime
+net=$net
+community_id=$community_id
+router_id=$router_id
+secret=$secret
+post_url=$post_url
+EOS
+
+echo "env 関連のファイルをコピーします"
+# cron の為の設定ファイルを root直下と pi user のホームディレクトリに配置する
+cp env /home/pi/local_mac_address_collect_post/env
+chmod 644 /home/pi/local_mac_address_collect_post/env
+cp /home/pi/local_mac_address_collect_post/env.forced env.forced
+
+echo "cronの設定を行います"
+# /etc/crontab にcronを追記
+####### 検証中の為POST cornはコメントアウト状態で記載 ########
+cat << EOS >> /etc/crontab
+# env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
+# */1 * * * *  root    export $(cat ~/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+
+# 定期的に強制POSTを実施するcron
+# */20 * * * *  root    export $(cat ~/env | cat ~/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+
+# 一日一回深夜にリブートさせる
+0 3 * * *  root    /sbin/reboot
+EOS
+
+# root logout
+exit
+echo "設定が完了しました"
