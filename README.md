@@ -9,6 +9,23 @@ RaspberryPIに本ドキュメントでの各種設定を行うことで、ロー
 - OS  raspbian Version:2.8.2
 - ローカルwi-fiネットワーク
 
+準備するもの
+- raspberryPI3 model B
+- microSDカード 16G程度
+- キーボード（USB接続）
+- マウス（USB接続）
+- モニター
+- HDMI～モニター間を接続できるケーブル
+- USB電源共有ケーブル（MicroB端子）
+
+準備しておく情報
+- 使用するWi-fiのID（SSID）とパスワード
+- ルーターの管理画面に入る際のIPアドレス
+- Livelynkより提供される以下の情報
+  - community_id
+  - ルーターNo
+  - secretキー
+  - サービス利用URL一式
 
 データの取得、及びPOSTはcronによる定期動作をしています。   
 以下の手順で設定を行います。   
@@ -34,69 +51,28 @@ ETCHER
 https://etcher.io/   
 参考:[ラズパイ の OS イメージを焼くときは Etcher が 便利 ＆ UI カッコいい](https://azriton.github.io/2017/11/12/ラズパイのOSイメージを焼くときはEtcherが便利＆UIカッコいい/)   
 
-
-## wpa_supplicant.conf ファイルの作成   
-
-この設定を行うとRaspberryPIが初回起動時にwi-fi接続を自動でしてくれます。   
-
-本レポジトリの wpa_supplicant.conf.example ファイルをコピーして wpa_supplicant.conf としてデスクトップ等に別名保存します。   
-
-wpa_supplicant.conf をエディタで開き、livelynkを使用するwi-fi環境のSSIDとパスワードを記述します。   
-（注意:ファイル編集の際は、改行コードはwindowsのCRLFではなくlinuxのLFになるようにエディタを設定し、保存してください。）   
-ssid=" この部分にwi-fiの接続先のタイトル "   
-psk=" この部分にパスワード "   
-```
-country=JP
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-network={
-ssid="----Your-WiFi-SSID----"
-psk="----PLAIN-PASSPHRASE----"
-}
-```
-
-RaspberryPIのOSをmicroSDカードに焼いた直後に、設定を記載した   
-wpa_supplicant.conf を、microSDの直下のディレクトリにコピーしてください。   
-これによりRaspberryPIが初回起動時にwi-fi接続をしてくれます。   
+イメージが焼けると、microSDカードの名称が（boot)と変更されます。
+windows10の場合、『ドライブ X（任意）:を使うにはフォーマットをする必要があります　フォーマットしますか？』   
+と、ダイアログがでますが、キャンセルしてください。
 
 
 # rasipberryPIにmicroSDを入れ起動
-モニター、マウス、キーボード接続後にUSBを差して起動させます。
+モニター、マウス、キーボード、接続後に電源USBを差して起動させます。
 
 ## 以下の初期設定をGUI画面で行う
 画面の指示に従い以下の設定を行ってください。
 
 - ローカライズ　日本に設定
-- 一般user pi の password設定
-- wi-fi 接続(上記の設定が確立してる場合は不要と思われます)
+- 一般user pi の password設定(重要なパスワードなので忘れずに管理してください)
+- wi-fi 接続
 - 初回 update かなり時間がかかる場合があります。検証時は1時間程でした
 - アップデート後に再起動します。
-- 再起動後再度ターミナルを開く
-
-# 再起動後パスワード設定を行う
-大変重要なパスワードなので、この二つのパスワードは漏洩厳禁で忘れないようにしてください。   
+- 再起動後再度ターミナルを開いて次の作業を行います。
 
 
-### piユーザー(標準ユーザー)のパスワード変更
-```
-passwd
-```
-以下の様にメッセージが出ます
-
-```
-pi 用にパスワードを変更中
-現在の UNIX パスワード:
-```
-初期設定のパスワードとして以下を入力します。
-```
-raspberry
-```
-続けて設定を行うパスワードを2回入力します。
-これで pi user のパスワードが変更されました。忘れずに管理してください。
-
-### rootユーザーのパスワード変更
+# rootユーザーのパスワード変更
 pi user に続けて管理者である root user のパスワードも同様に変更します。   
-こちらも大変重要なパスワードなので、漏洩厳禁で忘れないようにしてください。   
+大変重要なパスワードなので、この二つのパスワードは漏洩厳禁で忘れないようにしてください。   
 
 ```
 sudo passwd root
@@ -106,7 +82,7 @@ sudo passwd root
 
 
 # ターミナルでさらにパッケージ更新と再起動
-アップデートを行います。
+OSのアップデートを行います。
 ```
 sudo sh -c 'apt update && apt upgrade -y && reboot'
 ```
@@ -121,9 +97,11 @@ sudo sh -c 'apt update && apt upgrade -y && reboot'
 ## IPを固定する
 
 ### /etc/dhcpcd.conf を開き以下の部分をコメントアウトと記載で設定します
+ターミナルを開き以下を入力します。
 ```
 sudo vi /etc/dhcpcd.conf
 ```
+エディタが起動するので、以下の部分を編集してください。
 /etc/dhcpcd.conf
 ```
 interface wlan0
