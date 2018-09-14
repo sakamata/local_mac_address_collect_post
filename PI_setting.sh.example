@@ -28,7 +28,7 @@ pi=raspberry
 
 # ---------------------------------------------------
 
-
+cd
 # パッケージの最新化
 echo "更新作業をします"
 sudo apt -y update
@@ -38,10 +38,11 @@ echo "更新作業が終わりました"
 # コマンドの返答を識別して次の入力を自動的に行う
 # expect vim
 echo "vimの導入と設定をします"
-sudo apt-get -y install expect vim
+sudo apt -y install expect vim
 
 # vim の右クリックビジュアルモードを無効
-touch ~/.vimrc >> set mouse-=a
+echo 'set mouse-=a' >> ~/.vimrc
+
 source ~/.vimrc
 echo "vimの導入と設定が終わりました"
 
@@ -58,7 +59,7 @@ git config --global color.diff auto
 git config --global color.status auto
 git config --global color.branch auto
 # lessの設定をutf-8に変更
-vim ~/.bashrc >> export LESSCHARSET=utf-8
+echo 'export LESSCHARSET=utf-8' >> ~/.bashrc
 source ~/.bashrc
 
 echo "各種アプリケーションのインストールを行います。"
@@ -89,15 +90,6 @@ echo "arp-scanの動作確認をします。"
 # コマンド打って IP mac vendor の一覧が出るか確認
 sudo arp-scan -l --interface $net
 
-echo "root userに変更します。"
-# root userに変更 cronの為の設定
-expect -c "
-spawn su -
-expect \"パスワード:\"
-send  \"$root_pass\n\"
-interact
-"
-cd
 touch env
 chmod 744 env
 
@@ -116,7 +108,6 @@ echo "env 関連のファイルをコピーします"
 # cron の為の設定ファイルを root直下と pi user のホームディレクトリに配置する
 cp env /home/pi/local_mac_address_collect_post/env
 chmod 644 /home/pi/local_mac_address_collect_post/env
-chown pi:pi /home/pi/local_mac_address_collect_post/env
 cp /home/pi/local_mac_address_collect_post/env.forced env.forced
 
 echo "cronの設定を行います"
@@ -124,15 +115,18 @@ echo "cronの設定を行います"
 ####### 検証中の為POST cornはコメントアウト状態で記載 ########
 cat << EOS >> /etc/crontab
 # env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
-# */1 * * * *  root    export $(cat ~/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+# */1 * * * *  root    export $(cat /home/pi/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 定期的に強制POSTを実施するcron
-# */20 * * * *  root    export $(cat ~/env | cat ~/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+# */20 * * * *  root    export $(cat /home/pi/env | cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 一日一回深夜にリブートさせる
 0 3 * * *  root    /sbin/reboot
 EOS
 
+sudo chmod 644 /etc/crontab
+sudo chown root:root /etc/crontab
+echo "設定が完了しました"
 # root logout
 exit
-echo "設定が完了しました"
+cd

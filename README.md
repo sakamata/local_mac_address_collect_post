@@ -3,6 +3,17 @@
 
 RaspberryPIに本ドキュメントでの各種設定を行うことで、ローカルネットワーク内に接続されたPCやスマホ等の端末のMacアドレスとvendor情報が、定期的に LivelynkにPOSTされるようになります。これによりPOSTされた端末情報から在席確認ができるシステムとなっています。
 
+このドキュメントやコードのサポートは基本しません。   
+自分が使うものをついでに公開しておく、という意味合いしかありません。   
+もし、ご自分で環境構築されたい、という場合は皆さんの健闘を祈ります。そう、基本お祈りするだけです。ごめんなさい   
+
+このセットアップをする際に必要と思われるスキル
+- Linuxサーバーの環境構築の経験があればだいたい大丈夫です。むしろブラッシュアップお願いしたい位です。
+
+たぶん何とかなります。と思われるスキル
+- Linuxコマンドを多少は使った事がある cd ls sudo install など
+- vimエディタの使用経験 i で入力 :wq で保存？位でなんとか…
+- wi-fiルーターやIPについてのごく基本的な知識(自宅のルーターの管理画面見た程度)
 
 本システムは以下の構成で動作確認をしています。  
 - ハードウェア  raspberryPI3 model B
@@ -11,17 +22,17 @@ RaspberryPIに本ドキュメントでの各種設定を行うことで、ロー
 
 準備するもの
 - raspberryPI3 model B
-- microSDカード 16G程度
+- microSDカード 16G程度(あまり古い規格はNG)
 - キーボード（USB接続）
 - マウス（USB接続）
 - モニター
 - HDMI～モニター間を接続できるケーブル
-- USB電源共有ケーブル（MicroB端子）
+- USB電源共有ケーブル（MicroB端子） 2.5A以上の電流が確保できること
 
 準備しておく情報
-- 使用するWi-fiのID（SSID）とパスワード
+- 使用するWi-FiのID（SSID）とパスワード
 - ルーターの管理画面に入る際のIPアドレス
-- Livelynkより提供される以下の情報
+- Livelynkより提供される以下の情報（これが無いとlivelynk側では動きません）
   - community_id
   - ルーターNo
   - secretキー
@@ -94,14 +105,44 @@ sudo sh -c 'apt update && apt upgrade -y && reboot'
 ホスト側のマシンからログインをして詳細な設定を行う為、SSHログインができる様にします。   
 開発環境と、導入環境でIPの設定が異なる事があり、環境構築後、再設定が必要になるケースがあります。   
 
+## SSHを許可する
+
+GUIの画面から設定できます。   
+- 画面左上のRaaspberryPiアイコンをクリック   
+- 設定を選択   
+- Raaspberry Pi の設定をクリック   
+- インターフェイスタブをクリック
+- SSH: 有効 にチェックして OK ボタンを押す
+
 ## IPを固定する
 
+設定前に必要な事
+```
+ifconfig
+```
+と入力し、最後の段落に表示された最初の文字を覚えておいてください
+```
+wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.11.181  netmask 255.255.255.0  broadcast 192.168.11.255
+        inet6 xxxx::xxxx:xxx:xxxx:xxxx  prefixlen 64  scopeid 0x20<link>
+        ether xx:xx:xx:xx:xx:xx  txqueuelen 1000  (イーサネット)
+        .....つづく
+
+```
+この例の場合は wlan0 となります。
+
+
 ### /etc/dhcpcd.conf を開き以下の部分をコメントアウトと記載で設定します
-ターミナルを開き以下を入力します。
+ターミナルを開き以下を入力します。   
+もし vi エディタに慣れていない場合は、
 ```
-sudo vi /etc/dhcpcd.conf
+sudo nano /etc/dhcpcd.conf
 ```
-エディタが起動するので、以下の部分を編集してください。
+と、nanoエディタを使って編集するのが良いでしょう。   
+慣れている方、vim は最初に入ってません、ちょっとクセのあるviを使うか apt でvimを入れてからでお願いします。(vimは後でインストールします)   
+
+エディタが起動したら、以下の部分を編集してください。(下記は例としての値)
+
 /etc/dhcpcd.conf
 ```
 interface wlan0
@@ -109,12 +150,12 @@ static ip_address=192.168.1.181/24
 static routers=192.168.11.1
 static domain_name_servers=192.168.11.1
 ```
-- interface wlan0     # wi-fi接続前提 wlan または wlan0 となる   
-- ip_address          # 本体に設定したいIPアドレスを指定   
+- interface wlan0     # ifconfigで表示された内容 wlan または wlan0 等   
+- ip_address          # 本体に設定したい固定IPアドレスを指定（ルータの設定範囲内の値とします）   
 - routers             # デフォルトゲートウェイ, ルーターのIPアドレス   
 - domain_name_server  # ルーターのIPアドレス   
 
-再起動する
+上書き保存をした後再起動します
 ```
 sudo reboot
 ```
@@ -129,7 +170,9 @@ sudo reboot
 ```
 ssh pi@192.168.1.181
 ```
-pi user のパスワード入力でログイン
+警告と鍵を追加するメッセージが出るので yes と入力してから   
+先ほど設定した pi user のパスワードを入力してログインします。   
+
 ```
 pi@raspberrypi:~ $
 ```
@@ -151,12 +194,19 @@ chmod 774 local_mac_address_collect_post/*
 
 # 環境構築用のスクリプトを実行させる
 
-PI_setting.sh.example をコピーし、vimで開き環境変数の設定をする
+PI_setting.sh.example をコピーし、エディタで開き環境変数の設定をする
 ```
 cd local_mac_address_collect_post
 cp PI_setting.sh.example PI_setting.sh
-sudo vim PI_setting.sh
 ```
+```
+sudo nano PI_setting.sh
+```
+または
+```
+sudo vi PI_setting.sh
+```
+
 
 ファイル内の下記の部分に、運営者から指定された環境変数を設定します。   
 もし、不明や未設定の項目がある場合は、項目を変更しないまま実行してください。   
@@ -181,7 +231,7 @@ post_url=https://www.livelynk.jp/inport_post/mac_address
 # ---------------------------------------------------
 ```
 
-PI_setting.sh を実行する
+# PI_setting.sh を実行する
 ```
 sudo bash PI_setting.sh
 ```
@@ -195,27 +245,21 @@ sudo apt -y install postfix
 インストールの際以下の操作が必要です。
 - ダイアログで 了解を選び enter
 - 選択肢が出たら [了解]を押します tab enter と操作します
-- 次に[設定なし]を選択し、[了解]を押します 上キー 右キー enter と操作します
+- 次に[設定なし]を選択し enter と操作します
 
 # cronの起動
 ```
 sudo /etc/init.d/cron start
 ```
-
+# 起動確認
 1分程待ってからlivelynkのサイトを表示してください。   
-新規ユーザーが表示されていれば無事、設定完了となります。   
+wi-fiに接続された新規ユーザーが表示されていれば、無事設定完了となります。   
 
-
-
-test expect sample
-```
-#!/bin/sh
-
-expect -c "
-spawn su -
-expect \"パスワード:\"
-send  \"pi\n\"
-send -- \"ls -la\n\"
-interact
-"
-```
+***
+# 上手く動かない場合   
+以下をご確認ください。   
+- 入力した、各種環境設変数が間違って入力されていないか？   
+  - 以下のファイルを確認し、正しく編集してください。   
+  -  /home/pi にある env ファイル   
+- windowsで作業した場合の改行をコピーペースト等で張り付けてしまっていないか？   
+- アプリケーションやOSのアップデート等でshellスクリプトが最後まで実行されない場合は、停止した箇所から、再度 PI_setting.sh に記載された各種コマンドを入力して、環境設定を完了させてください。   
