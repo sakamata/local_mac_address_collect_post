@@ -53,7 +53,7 @@ json=$(jo status=ok hash=$hash time=$time community_id=$community_id router_id=$
 echo -e $json
 
 ##### 環境毎にurl 変更を行うこと ######
-curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "json=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
+#curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "json=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
 curl -F "json=$json" $post_url
 cp now.txt old.txt
 echo "now posted"
