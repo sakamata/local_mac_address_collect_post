@@ -21,7 +21,7 @@ RaspberryPiに本ドキュメントでの各種設定を行うことで、ロー
 - ローカルwi-fiネットワーク
 
 準備するもの
-- raspberryPi3 model B
+- raspberryPi3 model B または raspberryPi3 model B+
 - microSDカード 16G程度(あまり古い規格はNG)
 - キーボード（USB接続）
 - マウス（USB接続）
@@ -178,8 +178,27 @@ pi@raspberrypi:~ $
 ```
 と表示されればsshログイン完了です。
 
+# vimを入れて最低限の設定をする
+
+以下の操作でvimの基本設定のファイルを作って記述する
+```
+sudo apt install -y vim
+touch ~/.vimrc
+vim ~/.vimrc
+```
+以下を記述
+```
+syntax on
+colorscheme delek
+set mouse-=a
+```
+ハイライト on
+カラースキームを見易いものに
+ビジュアルモードのマウスを無効に（コピペしやすく）
+
 
 # Gitをインストールし、このリポジトリをクローンする
+既にGitがインストールされているかもしれません
 ```
 sudo apt -y install git
 cd
@@ -187,7 +206,9 @@ git clone https://github.com/sakamata/local_mac_address_collect_post.git
 ```
 パーミッション変更を無視に設定し、パーミッション変更を行う
 ```
+cd local_mac_address_collect_post
 git config core.filemode false
+cd
 chmod 774 local_mac_address_collect_post/*
 ```
 
