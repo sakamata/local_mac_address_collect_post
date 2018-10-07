@@ -104,21 +104,23 @@ secret=$secret
 post_url=$post_url
 EOS
 
+cd
 echo "env 関連のファイルをコピーします"
 # cron の為の設定ファイルを root直下と pi user のホームディレクトリに配置する
-cp env /home/pi/local_mac_address_collect_post/env
-chmod 644 /home/pi/local_mac_address_collect_post/env
-cp /home/pi/local_mac_address_collect_post/env.forced env.forced
+cp local_mac_address_collect_post/env env
+chmod 644 env
+cp local_mac_address_collect_post/env.forced env.forced
+chmod 644 env.forced
 
 echo "cronの設定を行います"
 # /etc/crontab にcronを追記
 ####### 検証中の為POST cornはコメントアウト状態で記載 ########
 cat << EOS >> /etc/crontab
 # env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
-# */1 * * * *  root    export $(cat /home/pi/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/1 * * * *  root    export $(cat /home/pi/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 定期的に強制POSTを実施するcron
-# */20 * * * *  root    export $(cat /home/pi/env | cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/20 * * * *  root    export $(cat /home/pi/env | cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 一日一回深夜にリブートさせる
 0 3 * * *  root    /sbin/reboot
