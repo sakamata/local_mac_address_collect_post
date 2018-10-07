@@ -89,11 +89,13 @@ cd
 echo "arp-scanの動作確認をします。"
 # コマンド打って IP mac vendor の一覧が出るか確認
 sudo arp-scan -l --interface $net
-
+cd
 touch env
 chmod 744 env
 
 # env に環境変数を書き込む
+cd
+cd local_mac_address_collect_post
 echo "env に環境変数を書き込みます"
 cat << EOS > env
 trigger=everytime
