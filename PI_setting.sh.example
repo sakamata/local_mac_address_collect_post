@@ -21,11 +21,6 @@ secret=secret_key_hash
 # Webアプリ側にPOSTを行うurlを指定します。通常はこのままです。
 post_url=https://www.livelynk.jp/inport_post/mac_address
 
-# root user のパスワードを指定します。
-root_pass=pi
-# pi user のパスワードを指定します。
-pi=raspberry
-
 # ---------------------------------------------------
 
 cd
@@ -92,10 +87,10 @@ sudo arp-scan -l --interface $net
 cd
 touch env
 chmod 744 env
+touch env.forced
+chmod 744 env.forced
 
 # env に環境変数を書き込む
-cd
-cd local_mac_address_collect_post
 echo "env に環境変数を書き込みます"
 cat << EOS > env
 trigger=everytime
@@ -106,31 +101,35 @@ secret=$secret
 post_url=$post_url
 EOS
 
-cd
+# env.forced に環境変数を書き込む
+echo "env.forced に環境変数を書き込みます"
+cat << EOS > env.forced
+trigger=forced
+net=$net
+community_id=$community_id
+router_id=$router_id
+secret=$secret
+post_url=$post_url
+EOS
+
 echo "env 関連のファイルをコピーします"
-# cron の為の設定ファイルを root直下と pi user のホームディレクトリに配置する
-cp local_mac_address_collect_post/env env
-chmod 644 env
-cp local_mac_address_collect_post/env.forced env.forced
-chmod 644 env.forced
+# cron の為の設定ファイルをローカルリポジトリにも配置する
+cp env local_mac_address_collect_post/env
+cp env.forced local_mac_address_collect_post/env.forced
 
 echo "cronの設定を行います"
 # /etc/crontab にcronを追記
-####### 検証中の為POST cornはコメントアウト状態で記載 ########
 cat << EOS >> /etc/crontab
 # env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
-*/1 * * * *  root    export $(cat /home/pi/env| xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/1 * * * *  root    export $(cat /home/pi/env | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 定期的に強制POSTを実施するcron
-*/20 * * * *  root    export $(cat /home/pi/env | cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/15 * * * *  root    export $(cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
-# 一日一回深夜にリブートさせる
-0 3 * * *  root    /sbin/reboot
+# 一日一回深夜 3:01 にリブートさせる
+1 3 * * *  root    /sbin/reboot
 EOS
 
 sudo chmod 755 /etc/crontab
 sudo chown root:root /etc/crontab
 echo "設定が完了しました"
-# root logout
-exit
-cd
