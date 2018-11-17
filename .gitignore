@@ -1,5 +1,6 @@
 wpa_supplicant.conf
 PI_setting.sh
 env
+env.forced
 now.txt
 old.txt

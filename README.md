@@ -238,8 +238,7 @@ sudo vi PI_setting.sh
 # 以下の変数にご自分の環境にあった値を入れてください。
 github_name="First-name Family-name"
 github_email="username@example.com"
-# ifconfig で表示されたネットワークのタイプを設定します。 eth0 wlan 等
-net=net_type
+
 # コミュニティ単位で指定された ID をセットします。
 community_id=unique_community_id
 # ルーターのIDであるユニークの数値をセットします。

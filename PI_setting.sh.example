@@ -10,8 +10,7 @@
 # githubのアカウント
 github_name="First-name Family-name"
 github_email="username@example.com"
-# ifconfig で表示されたネットワークのタイプを設定します。 wlan wlan0 等
-net=net_type
+
 # コミュニティ単位で指定された ID をセットします。
 community_id=unique_community_id
 # ルーターのIDであるユニークの数値をセットします。
@@ -101,6 +100,8 @@ secret=$secret
 post_url=$post_url
 EOS
 
+# wl = 無線ネットワーク環境を抽出
+net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
 # env.forced に環境変数を書き込む
 echo "env.forced に環境変数を書き込みます"
 cat << EOS > env.forced
