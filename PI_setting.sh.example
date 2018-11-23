@@ -78,16 +78,24 @@ autoreconf --install
 ./configure
 make
 sudo make install
-cd
 
-echo "arp-scanの動作確認をします。"
-# コマンド打って IP mac vendor の一覧が出るか確認
-sudo arp-scan -l --interface $net
+
+
+community_id=2
+router_id=3
+secret=pyyrM8nz7YWM6R0Yrdpewb98zVKtBbKr
+post_url=https://www.livelynk.jp/inport_post/mac_address
+
+
+# livelynk設定ファイル env を作成
 cd
 touch env
 chmod 744 env
 touch env.forced
 chmod 744 env.forced
+
+# wl = 無線ネットワーク環境を抽出
+net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
 
 # env に環境変数を書き込む
 echo "env に環境変数を書き込みます"
@@ -100,8 +108,6 @@ secret=$secret
 post_url=$post_url
 EOS
 
-# wl = 無線ネットワーク環境を抽出
-net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
 # env.forced に環境変数を書き込む
 echo "env.forced に環境変数を書き込みます"
 cat << EOS > env.forced
@@ -114,18 +120,18 @@ post_url=$post_url
 EOS
 
 echo "env 関連のファイルをコピーします"
-# cron の為の設定ファイルをローカルリポジトリにも配置する
-cp env local_mac_address_collect_post/env
-cp env.forced local_mac_address_collect_post/env.forced
+# cron の為の設定ファイルをGitリポジトリに移動する
+mv env local_mac_address_collect_post/env
+mv env.forced local_mac_address_collect_post/env.forced
 
 echo "cronの設定を行います"
 # /etc/crontab にcronを追記
 cat << EOS >> /etc/crontab
 # env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
-*/1 * * * *  root    export $(cat /home/pi/env | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/1 * * * *  root    export $(cat /home/pi/local_mac_address_collect_post/env | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 定期的に強制POSTを実施するcron
-*/15 * * * *  root    export $(cat /home/pi/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/15 * * * *  root    export $(cat /home/pi/local_mac_address_collect_post/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 一日一回深夜 3:01 にリブートさせる
 1 3 * * *  root    /sbin/reboot
