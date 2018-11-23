@@ -172,6 +172,7 @@ Linux標準のLFにしてから張り付ける様にしてください。
 
 
 # Gitの Livelynk RasberryPi 用のリポジトリをクローンする
+以下のコマンドを入力します。
 ```
 cd
 git clone https://github.com/sakamata/local_mac_address_collect_post.git
@@ -200,24 +201,25 @@ sudo nano PI_setting.sh
 sudo vi PI_setting.sh
 ```
 
-
 ファイル内の下記の部分に、運営者から指定された環境変数を設定します。   
 もし、不明や未設定の項目がある場合は、項目を変更しないまま実行してください。   
 動作するには至りませんが、後から設定を変更できます。   
 ```
 # ---------------------------------------------------
 
-# 以下の変数にご自分の環境にあった値を入れてください。
+# 以下の変数( = 以降のXXXがある部分)にご自分の環境にあった値を入れてください。
+
+# githubのアカウント
 github_name="First-name Family-name"
 github_email="username@example.com"
 
 # コミュニティ単位で指定された ID をセットします。
-community_id=unique_community_id
+community_id=LivelynkXXX
 # ルーターのIDであるユニークの数値をセットします。
-router_id=router_number_int
+router_id=XXX
 # 指定されたハッシュ値をセットします。
-secret=secret_key_hash
-# Webアプリ側にPOSTを行うurlを指定します。
+secret=XXX
+# Webアプリ側にPOSTを行うurlを指定します。通常はこのままです。
 post_url=https://www.livelynk.jp/inport_post/mac_address
 
 # ---------------------------------------------------
