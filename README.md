@@ -120,7 +120,7 @@ GUIの画面から設定できます。
 ```
 ifconfig
 ```
-と入力し、以下の例にある inet の後の 192.168.XX.XXX （Xは任意の数値）が現在のRaspberryPiに設定されたIPアドレスです。これを覚えておいてください
+と入力すると、以下の例の様な内容が出力されます。2行目の inet の後の 192.168.XX.XXX （Xは任意の数値）が現在のRaspberryPiに設定されたIPアドレスです。このIPアドレスを覚えておいてください
 ```
 wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.XX.XXX  netmask 255.255.255.0  broadcast 192.168.11.255
@@ -131,49 +131,16 @@ wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 ```
 RaspberryPiの電源は付けたまま次の作業に移ります。
 
-<!--
-
-### /etc/dhcpcd.conf を開き以下の部分をコメントアウトと記載で設定します
-ターミナルを開き以下を入力します。   
-もし vi エディタに慣れていない場合は、
-```
-sudo nano /etc/dhcpcd.conf
-```
-と、nanoエディタを使って編集するのが良いでしょう。   
-慣れている方、vim は最初に入ってません、ちょっとクセのあるviを使うか apt でvimを入れてからでお願いします。(vimは後でインストールします)   
-
-エディタが起動したら、以下の部分を編集してください。(下記は例としての値)
-
-/etc/dhcpcd.conf
-```
-interface wlan0
-static ip_address=192.168.1.181/24
-static routers=192.168.11.1
-static domain_name_servers=192.168.11.1
-```
-- interface wlan0     # ifconfigで表示された内容 wlan または wlan0 等   
-- ip_address          # 本体に設定したい固定IPアドレスを指定（ルータの設定範囲内の値とします）   
-- routers             # デフォルトゲートウェイ, ルーターのIPアドレス   
-- domain_name_server  # ルーターのIPアドレス   
-
-上書き保存をした後再起動します
-```
-sudo reboot
-```
-
-***
--->
-
 
 # ここから別マシンからのsshログインでの作業となります。
 
 ## sshログインをする方のマシンのコンソールを起動し sshログインをする
 
-別マシンでの操作は同じwi-fiネットワークまたはルーターにつながっている必要があります。コンソールを起動し以下の様に先ほどのIPアドレスを含めたコマンドを入力します。
+別マシンでの操作は同じネットワークにつながっている必要があります。コンソールを起動し以下の様に先ほどのIPアドレスを含めたコマンドを入力します。
 ```
 ssh pi@192.168.XX.XXX
 ```
-警告と鍵を追加するメッセージが出るので yes と入力してから   
+警告と鍵を追加する旨のメッセージが出るので `yes` と入力してから   
 先ほど設定した pi user のパスワードを入力してログインします。   
 
 ```
@@ -200,14 +167,12 @@ set mouse-=a
 ビジュアルモードのマウスを無効に（コピペしやすく）   
 
 なお、これ以降の作業で、ご自分のPCで表示させた文字をコピー＆ペーストでラズパイのコンソールなどに張り付ける等する際は改行コードに注意してください。
-windows標準のCRLFですと、エラーになることがあります。エディタの設定等で
+windows標準のCRLFですと、思わぬエラーになることがあります。エディタの設定等で
 Linux標準のLFにしてから張り付ける様にしてください。
 
 
-# Gitをインストールし、このリポジトリをクローンする
-既にGitがインストールされているかもしれませんが以下のコマンドを入力します
+# Gitの Livelynk RasberryPi 用のリポジトリをクローンする
 ```
-sudo apt -y install git
 cd
 git clone https://github.com/sakamata/local_mac_address_collect_post.git
 ```

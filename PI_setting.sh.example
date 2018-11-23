@@ -5,18 +5,18 @@
 
 # ---------------------------------------------------
 
-# 以下の変数にご自分の環境にあった値を入れてください。
+# 以下の変数( = 以降のXXXがある部分)にご自分の環境にあった値を入れてください。
 
 # githubのアカウント
 github_name="First-name Family-name"
 github_email="username@example.com"
 
 # コミュニティ単位で指定された ID をセットします。
-community_id=unique_community_id
+community_id=LivelynkXXX
 # ルーターのIDであるユニークの数値をセットします。
-router_id=router_number_int
+router_id=XXX
 # 指定されたハッシュ値をセットします。
-secret=secret_key_hash
+secret=XXX
 # Webアプリ側にPOSTを行うurlを指定します。通常はこのままです。
 post_url=https://www.livelynk.jp/inport_post/mac_address
 
@@ -79,29 +79,18 @@ autoreconf --install
 make
 sudo make install
 
-
-
-community_id=2
-router_id=3
-secret=pyyrM8nz7YWM6R0Yrdpewb98zVKtBbKr
-post_url=https://www.livelynk.jp/inport_post/mac_address
-
-
 # livelynk設定ファイル env を作成
+echo "livelynk設定ファイル env を作成します"
 cd
-touch env
-chmod 744 env
-touch env.forced
-chmod 744 env.forced
-
-# wl = 無線ネットワーク環境を抽出
-net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
+touch home/pi/local_mac_address_collect_post/env
+chmod 744 /home/pi/local_mac_address_collect_post/env
+touch /home/pi/local_mac_address_collect_post/env.forced
+chmod 744 /home/pi/local_mac_address_collect_post/env.forced
 
 # env に環境変数を書き込む
 echo "env に環境変数を書き込みます"
-cat << EOS > env
+cat << EOS > /home/pi/local_mac_address_collect_post/env
 trigger=everytime
-net=$net
 community_id=$community_id
 router_id=$router_id
 secret=$secret
@@ -110,28 +99,24 @@ EOS
 
 # env.forced に環境変数を書き込む
 echo "env.forced に環境変数を書き込みます"
-cat << EOS > env.forced
+cat << EOS > /home/pi/local_mac_address_collect_post/env.forced
 trigger=forced
-net=$net
 community_id=$community_id
 router_id=$router_id
 secret=$secret
 post_url=$post_url
 EOS
 
-echo "env 関連のファイルをコピーします"
-# cron の為の設定ファイルをGitリポジトリに移動する
-mv env local_mac_address_collect_post/env
-mv env.forced local_mac_address_collect_post/env.forced
-
 echo "cronの設定を行います"
+sudo chmod 777 /etc/crontab
+
 # /etc/crontab にcronを追記
 cat << EOS >> /etc/crontab
 # env より環境変数を読み込んでcronを実施 前回postと同じ内容なら処理停止がなされる
-*/1 * * * *  root    export $(cat /home/pi/local_mac_address_collect_post/env | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/1 * * * *  root    export \$(cat /home/pi/local_mac_address_collect_post/env | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 定期的に強制POSTを実施するcron
-*/15 * * * *  root    export $(cat /home/pi/local_mac_address_collect_post/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
+*/15 * * * *  root    export \$(cat /home/pi/local_mac_address_collect_post/env.forced | xargs); bash /home/pi/local_mac_address_collect_post/arp-scan.sh
 
 # 一日一回深夜 3:01 にリブートさせる
 1 3 * * *  root    /sbin/reboot

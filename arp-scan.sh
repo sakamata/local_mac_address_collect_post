@@ -9,6 +9,10 @@
 # sudo arp-scan -l --interface eth0 | grep -i '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}' | sort -u -t$'\t' -k2 | uniq -f 1 > now.txt
 
 # sudo arp-scan -l --interface eth0 | grep -i '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}' | sort -u -t$'\t' -k2 | uniq -f 1 > now.txt
+
+# ネットワーク環境を抽出
+#net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
+net=`route | sed -n 4P | awk '{print $8}'`
 sudo arp-scan -l --interface $net | grep -i '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}' | sort -u -t$'\t' -k2 | uniq -f 1 > now.txt
 
 if test -e "old.txt"; then
