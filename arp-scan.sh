@@ -11,7 +11,6 @@
 # sudo arp-scan -l --interface eth0 | grep -i '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}' | sort -u -t$'\t' -k2 | uniq -f 1 > now.txt
 
 # ネットワーク環境を抽出
-#net=`ifconfig | grep flags | grep wl | awk '{print $1}' | sed -e "s/:/ /g"`
 net=`route | sed -n 4P | awk '{print $8}'`
 sudo arp-scan -l --interface $net | grep -i '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}' | sort -u -t$'\t' -k2 | uniq -f 1 > now.txt
 
@@ -37,23 +36,28 @@ do
     eval ARRAY=("$(sed -e "s/'/'\\\\''/g" -e "s/\t/'\t'/g" -e "s/^/'/" -e "s/$/'/" <<< "$line")")
     # 配列変数macに値を追加、macの配列を作る
     mac+=(`echo $line | grep -io '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}'`)
-    # 配列変数macに値を追加、ipの配列を作る
+    # 配列変数ipに値を追加、ipの配列を作る
     ip+=(`echo $line | grep -Eio '^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}'`)
     # 3番目の要素 vendorを配列変数に追加
     vendor+=("${ARRAY[2]}")
 done < ./now.txt
 
+for i in "${mac[@]}"
+do
+echo ${i^^}
+  hash_mac+=(`echo -n ${i^^}$secret | shasum -a 256 | awk '{print $1}'`)
+done
+echo ${hash_mac[@]}
+
 # 改行を配列の区切りとして設定
 IFS=$'\n'
 vendor=(`echo "${vendor[*]}"`)
-macs=($macs)
-ips=($ips)
 time=$(date +%s)
 # sha256 でhash値作成 文末にスペースとハイフンが付くのでawkコマンドで削除
 hash=(`echo -n $time$secret | shasum -a 256 | awk '{print $1}'`)
 
 # テキストをjson化する。
-json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id router_id=$router_id mac=$(jo "${mac[@]}" -a)  vendor=$(jo "${vendor[@]}" -a))
+json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id router_id=$router_id mac=$(jo "${hash_mac[@]}" -a)  vendor=$(jo "${vendor[@]}" -a))
 echo -e $json
 
 ##### 環境毎にurl 変更を行うこと ######
