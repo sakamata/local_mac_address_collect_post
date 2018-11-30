@@ -44,10 +44,10 @@ done < ./now.txt
 
 for i in "${mac[@]}"
 do
-echo ${i^^}
+# echo ${i^^}
   hash_mac+=(`echo -n ${i^^}$secret | shasum -a 256 | awk '{print $1}'`)
 done
-echo ${hash_mac[@]}
+# echo ${hash_mac[@]}
 
 # 改行を配列の区切りとして設定
 IFS=$'\n'
@@ -58,10 +58,26 @@ hash=(`echo -n $time$secret | shasum -a 256 | awk '{print $1}'`)
 
 # テキストをjson化する。
 json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id router_id=$router_id mac=$(jo "${hash_mac[@]}" -a)  vendor=$(jo "${vendor[@]}" -a))
-echo -e $json
+# echo -e $json
 
 ##### 環境毎にurl 変更を行うこと ######
 #curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "json=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
-curl -F "json=$json" $post_url
-cp now.txt old.txt
+
+res=$(curl -F "json=$json" $post_url)
 echo "now posted"
+cp now.txt old.txt
+
+if [[ "$res" =~ "From Livelynk posted" ]]
+then
+  MAC=$(echo $res | jq .MAC | sed "s/\"//g")
+  MAC=${MAC,,} # 小文字に変換
+  # GoogleHomeのMACAddressからIPを探して引数に使用
+  IP=$(grep $MAC now.txt | awk '{print $1}')
+
+  name=$(echo $res | jq ".name" | sed "s/\"//g")
+  message=$(echo $res | jq ".message" | sed "s/\"//g")
+  # 自宅テスト用
+#   node /home/pi/GoogleHomeTalk.js $IP $name $message
+  # 本番環境 
+  node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $name $message
+fi
