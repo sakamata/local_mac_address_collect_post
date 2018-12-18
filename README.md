@@ -196,8 +196,13 @@ sudo nano PI_setting.sh
 ```
 または
 ```
-sudo vi PI_setting.sh
+sudo vim PI_setting.sh
 ```
+vim の場合は起動直後に
+```
+:source ~/.vimrc
+```
+と打って設定を反映させてください。   
 
 ファイル内の下記の部分に、運営者から指定された環境変数を設定します。   
 もし、不明や未設定の項目がある場合は、項目を変更しないまま実行してください。   
