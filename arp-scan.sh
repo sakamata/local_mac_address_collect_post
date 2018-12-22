@@ -35,23 +35,26 @@ do
     # Thanks! https://qiita.com/ymdymd/items/0ff295b78ca744b69a0e
     eval ARRAY=("$(sed -e "s/'/'\\\\''/g" -e "s/\t/'\t'/g" -e "s/^/'/" -e "s/$/'/" <<< "$line")")
     # 配列変数macに値を追加、macの配列を作る
-    mac+=(`echo $line | grep -io '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}'`)
+    # mac+=(`echo $line | grep -io '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}'`)
+    pure_mac=(`echo $line | grep -io '[0-9A-F]\{2\}\(:[0-9A-F]\{2\}\)\{5\}'`)
+    hash_mac+=(`echo -n ${pure_mac^^}$secret | shasum -a 256 | awk '{print $1}'`)
+
     # 配列変数ipに値を追加、ipの配列を作る
     ip+=(`echo $line | grep -Eio '^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}'`)
     # 3番目の要素 vendorを配列変数に追加
     vendor+=("${ARRAY[2]}")
 done < ./now.txt
 
-for i in "${mac[@]}"
-do
-# echo ${i^^}
-  hash_mac+=(`echo -n ${i^^}$secret | shasum -a 256 | awk '{print $1}'`)
-done
-# echo ${hash_mac[@]}
+# for i in "${mac[@]}"
+# do
+#   hash_mac+=(`echo -n ${i^^}$secret | shasum -a 256 | awk '{print $1}'`)
+# done
 
 # 改行を配列の区切りとして設定
 IFS=$'\n'
 vendor=(`echo "${vendor[*]}"`)
+echo "${vendor[@]}"
+
 time=$(date +%s)
 # sha256 でhash値作成 文末にスペースとハイフンが付くのでawkコマンドで削除
 hash=(`echo -n $time$secret | shasum -a 256 | awk '{print $1}'`)
@@ -76,7 +79,7 @@ then
   name=$(echo $res | jq ".name" | sed "s/\"//g")
   message=$(echo $res | jq ".message" | sed "s/\"//g")
   # 自宅テスト用
-  node /home/pi/GoogleHomeTalk.js $IP $name $message
+#   node /home/pi/GoogleHomeTalk.js $IP $name $message
   # 本番環境 
-  #node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $name $message
+  node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $name $message
 fi
