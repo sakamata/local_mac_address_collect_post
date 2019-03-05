@@ -62,8 +62,9 @@ time=$(date +%s)
 # sha256 でhash値作成 文末にスペースとハイフンが付くのでawkコマンドで削除
 hash=(`echo -n $time$secret | shasum -a 256 | awk '{print $1}'`)
 
+log=`cat ./now.txt`
 # テキストをjson化する。
-json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id router_id=$router_id mac=$(jo "${hash_mac[@]}" -a) omit_mac=$(jo "${omit_mac[@]}" -a) vendor=$(jo "${vendor[@]}" -a))
+json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id router_id=$router_id  arp-scan_log="$log" mac=$(jo "${hash_mac[@]}" -a) omit_mac=$(jo "${omit_mac[@]}" -a) vendor=$(jo "${vendor[@]}" -a))
 # echo -e $json
 
 ##### 環境毎にurl 変更を行うこと ######
