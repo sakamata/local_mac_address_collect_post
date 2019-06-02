@@ -70,7 +70,7 @@ json=$(jo status=$trigger hash=$hash time=$time community_id=$community_id route
 ##### 環境毎にurl 変更を行うこと ######
 #curl --tlsv1 -k -v --digest -u "GeekOffice:kogaidan" -F "json=`cat json.txt`" https://www.livelynk.jp/inport_post/mac_address
 
-res=$(curl -F "json=$json" $post_url)
+res=$(curl -F -k "json=$json" $post_url)
 echo "now posted"
 cp now.txt old.txt
 
