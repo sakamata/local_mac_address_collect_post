@@ -147,8 +147,9 @@ npm init
 # ここで enter 及び yes
 npm install google-home-notifier
 cd
-cp /home/pi/google-home/node_modules/google-tts-api/lib/key.js  /home/pi/google-home/node_modules/google-tts-api/lib/key.js.old
-
+# google home api の設定ファイルをバックアップした後書き換え
+mv /home/pi/google-home/node_modules/google-tts-api/lib/key.js  /home/pi/google-home/node_modules/google-tts-api/lib/key.js.old
+touch /home/pi/google-home/node_modules/google-tts-api/lib/key.js
 cat << EOS >> /home/pi/google-home/node_modules/google-tts-api/lib/key.js
 var fetch = require('isomorphic-fetch');
 var host = 'https://translate.google.com';
@@ -190,4 +191,3 @@ EOS
 mv google-home google-home-notifier
 echo 以下のコマンドを実行してGoogleHomeがしゃべるか確認してください。正しく発話すれば設定が完了です。
 echo node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js '192.168.XX.XX' 'GoogleHome端末名' 'ハロー'
-
