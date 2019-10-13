@@ -17,7 +17,7 @@ RaspberryPiに本ドキュメントでの各種設定を行うことで、ロー
 
 本システムは以下の構成で動作確認をしています。  
 - ハードウェア  raspberryPi3 model B または 3B+
-- OS  raspbian Version:2.8.2
+- OS  raspbian Version:3.2
 - ローカルwi-fiネットワーク
 
 準備するもの
@@ -46,13 +46,13 @@ RaspberryPiに本ドキュメントでの各種設定を行うことで、ロー
 # OS raspbian をダウンロードする
 
 raspbianを以下のいずれかのサイトより入手します。   
-動作確認Version  NOOBS  Version:2.8.2   Release date:2018-06-27   
+動作確認Version  NOOBS  Version:3.2   Release date:2019-07-10   
 
 公式サイト（DLに時間がかかります）   
 https://www.raspberrypi.org/downloads/noobs/   
 
 ミラーサイト(比較的早くDLできます)   
-http://ftp.jaist.ac.jp/pub/raspberrypi/raspbian/images/raspbian-2018-06-29/   
+http://ftp.jaist.ac.jp/pub/raspberrypi/raspbian/images/raspbian-2019-07-12/
 
 # microSDカードにOS raspbian を焼く
 
@@ -165,11 +165,9 @@ set mouse-=a
 カラースキームを見易いものに   
 ビジュアルモードのマウスを無効に（コピペしやすく）   
 
-# git のインストールを行う
+~~# git のインストールを行う~~
 
-```
-sudo apt install -y git
-```
+(最初からインストールされる様になりました。)
 
 
 なお、これ以降の作業で、ご自分のPCで表示させた文字をコピー＆ペーストでラズパイのコンソールなどに張り付ける等する際は改行コードに注意してください。
@@ -236,31 +234,43 @@ post_url=https://www.livelynk.jp/inport_post/mac_address
 ```
 
 # PI_setting.sh を実行する
+
+以下のコマンドを実行すると一気に設定が行われます。しばらく実行に時間がかかりますが、途中で強制的にプログラムを止めたり、電源を切ったりしないようにしてください。
+
 ```
 sudo bash PI_setting.sh
 ```
+
 各種、メッセージが表示されつつ設定が行われます。   
+一旦スクリプトが停止した際は、google-homeに関する設定を行います。   
+画面の指示に従って操作をしてください。   
 設定が完了するまでしばらく待ちます。   
 
 # cron 実行に必要な postfix のインストール
+
 ```
 sudo apt -y install postfix
 ```
+
 インストールの際以下の操作が必要です。
 - ダイアログで 了解を選び enter
 - 選択肢が出たら [了解]を押します tab enter と操作します
 - 次に[設定なし]を選択し enter と操作します
 
 # cronの起動
+
 ```
 sudo /etc/init.d/cron start
 ```
+
 # 起動確認
 1分程待ってからlivelynkのサイトを表示してください。   
-wi-fiに接続された新規ユーザーが表示されていれば、無事設定完了となります。   
+wi-fiに接続された端末が、仮の名前の来訪者として表示されていれば、無事設定完了となります。   
 
 ***
+
 # 上手く動かない場合   
+
 以下をご確認ください。   
 - 入力した、各種環境設変数が間違って入力されていないか？   
   - 以下のファイルを確認し、正しく編集してください。   

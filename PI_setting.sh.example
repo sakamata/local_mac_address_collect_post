@@ -175,7 +175,7 @@ cd /home/pi/google-home/
 
 echo "###################################################"
 echo "Livelynkスクリプトよりお知らせ"
-echo "動作が停止します。最初にのname で google-home と入れ、後は enterキーを連続、最後に yes と入力してenterしてください。"
+echo "動作が停止します(google-home)と記述された行で enterキーを押し、何度か繰り返した後、最後に yes と入力してenterしてください。"
 echo "###################################################"
 
 npm init
@@ -233,16 +233,16 @@ echo "###################################################"
 # https://qiita.com/felis_silv/items/e69f3490091bee9fe619
 
 cd /home/pi
-sudo bash
-apt-get install -y rsync gawk busybox bindfs
-dphys-swapfile swapoff
-dphys-swapfile uninstall
-update-rc.d dphys-swapfile disable
+# sudo bash
+sudo apt-get install -y rsync gawk busybox bindfs
+sudo dphys-swapfile swapoff
+sudo dphys-swapfile uninstall
+sudo update-rc.d dphys-swapfile disable
 systemctl disable dphys-swapfile
 git clone https://github.com/josepsanzcamp/root-ro.git
 rsync -va root-ro/etc/initramfs-tools/* /etc/initramfs-tools/
-mkinitramfs -o /boot/initrd.gz
-echo initramfs initrd.gz >> /boot/config.txt
+sudo mkinitramfs -o /boot/initrd.gz
+sudo -- sh -c "echo 'initramfs initrd.gz' >> /boot/config.txt"
 
 exit
 
