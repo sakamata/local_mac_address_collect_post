@@ -24,23 +24,33 @@ post_url=https://www.livelynk.jp/inport_post/mac_address
 
 cd
 # パッケージの最新化
+echo "###################################################"
 echo "更新作業をします"
+echo "###################################################"
 sudo apt -y update
 sudo apt -y upgrade
+echo "###################################################"
 echo "更新作業が終わりました"
+echo "###################################################"
 
 # コマンドの返答を識別して次の入力を自動的に行う
 # expect vim
+echo "###################################################"
 echo "vimの導入と設定をします"
+echo "###################################################"
 sudo apt -y install expect vim
 
 # vim の右クリックビジュアルモードを無効
 echo 'set mouse-=a' >> ~/.vimrc
 
 source ~/.vimrc
+echo "###################################################"
 echo "vimの導入と設定が終わりました"
+echo "###################################################"
 
+echo "###################################################"
 echo "gitの設定を行います。"
+echo "###################################################"
 # gitの基本設定
 git config --global user.name $github_name
 git config --global user.email $github_email
@@ -56,7 +66,9 @@ git config --global color.branch auto
 echo 'export LESSCHARSET=utf-8' >> ~/.bashrc
 source ~/.bashrc
 
+echo "###################################################"
 echo "各種アプリケーションのインストールを行います。"
+echo "###################################################"
 # 日本語IME mozc
 sudo apt -y install uim uim-mozc
 
@@ -69,7 +81,9 @@ sudo apt -y install jq jo
 # arp-scanに必要なパッケージをインストール
 sudo apt -y install autoconf libpcap-dev
 
+echo "###################################################"
 echo "arp-scanのインストールと設定を行います。"
+echo "###################################################"
 # arp-scanをインストール
 cd /tmp
 git clone https://github.com/royhills/arp-scan.git
@@ -80,7 +94,9 @@ make
 sudo make install
 
 # livelynk設定ファイル env を作成
+echo "###################################################"
 echo "livelynk設定ファイル env を作成します"
+echo "###################################################"
 cd
 touch /home/pi/local_mac_address_collect_post/env
 chmod 744 /home/pi/local_mac_address_collect_post/env
@@ -88,7 +104,9 @@ touch /home/pi/local_mac_address_collect_post/env.forced
 chmod 744 /home/pi/local_mac_address_collect_post/env.forced
 
 # env に環境変数を書き込む
+echo "###################################################"
 echo "env に環境変数を書き込みます"
+echo "###################################################"
 cat << EOS > /home/pi/local_mac_address_collect_post/env
 trigger=everytime
 community_id=$community_id
@@ -98,7 +116,9 @@ post_url=$post_url
 EOS
 
 # env.forced に環境変数を書き込む
+echo "###################################################"
 echo "env.forced に環境変数を書き込みます"
+echo "###################################################"
 cat << EOS > /home/pi/local_mac_address_collect_post/env.forced
 trigger=forced
 community_id=$community_id
@@ -107,7 +127,10 @@ secret=$secret
 post_url=$post_url
 EOS
 
+echo "###################################################"
 echo "cronの設定を行います"
+echo "###################################################"
+
 sudo chmod 777 /etc/crontab
 
 # /etc/crontab にcronを追記
@@ -125,8 +148,10 @@ EOS
 sudo chmod 755 /etc/crontab
 sudo chown root:root /etc/crontab
 
+echo "###################################################"
 echo "cron設定が完了しました"
 echo "nodejs npm のインストールを開始します。"
+echo "###################################################"
 
 sudo apt-get install -y nodejs npm
 sudo npm cache clean
@@ -134,15 +159,25 @@ sudo npm install npm n -g
 sudo n stablecurl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 sudo apt-get install -y git-core libnss-mdns libavahi-compat-libdnssd-dev
+
+echo "###################################################"
 echo "nodeのバージョンを表示します。"
+echo "###################################################"
 node -v
+
+echo "###################################################"
 echo "npmのバージョンを表示します。"
+echo "###################################################"
 npm -v
 
+mkdir /home/pi/google-home
+cd /home/pi/google-home/
 
-mkdir google-home
-cd google-home/
+echo "###################################################"
+echo "Livelynkスクリプトよりお知らせ"
 echo "動作が停止します。最初にのname で google-home と入れ、後は enterキーを連続、最後に yes と入力してenterしてください。"
+echo "###################################################"
+
 npm init
 # ここで enter 及び yes
 npm install google-home-notifier
@@ -189,5 +224,48 @@ module.exports = function (timeout) {
 EOS
 
 mv google-home google-home-notifier
-echo 以下のコマンドを実行してGoogleHomeがしゃべるか確認してください。正しく発話すれば設定が完了です。
-echo node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js '192.168.XX.XX' 'GoogleHome端末名' 'ハロー'
+
+echo "###################################################"
+echo "MicroSDカードのOSを書き込み禁止の状態に設定します。"
+echo "###################################################"
+# MicroSDを書き込み禁止のROMに設定する
+# Thanks!
+# https://qiita.com/felis_silv/items/e69f3490091bee9fe619
+
+cd /home/pi
+sudo bash
+apt-get install -y rsync gawk busybox bindfs
+dphys-swapfile swapoff
+dphys-swapfile uninstall
+update-rc.d dphys-swapfile disable
+systemctl disable dphys-swapfile
+git clone https://github.com/josepsanzcamp/root-ro.git
+rsync -va root-ro/etc/initramfs-tools/* /etc/initramfs-tools/
+mkinitramfs -o /boot/initrd.gz
+echo initramfs initrd.gz >> /boot/config.txt
+
+exit
+
+echo "MicroSDカードのOSを書き込み禁止の状態に設定しました。"
+echo ""
+echo "###################################################"
+echo "Livelynkスクリプトよりお知らせ"
+echo "全ての設定が完了しました！"
+echo "###################################################"
+echo ""
+echo "1, 以下のコマンドを実行してGoogleHomeの発話を確認してください。"
+echo "   192.168.XX.XX 部分のIPアドレス と GoogleHome端末名 をwi-fiに設定されているのもに書き換える必要があります"
+echo "   node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js '192.168.XX.XX' 'GoogleHome端末名' 'ハロー'"
+echo ""
+echo "2, 発話が確認できたら以下のコマンドでシャットダウンを行います。"
+echo ""
+echo "   shutdown now"
+echo ""
+echo "   シャットダウン後、モニター・キーボード・マウスの接続を外して再度電源を入れれば、滞在者の確認を行うようになります。"
+echo ""
+echo "3, 書き込み禁止を元に戻すには以下のコマンドを実行してください。再起動後編集が可能になります。"
+echo "   sh /home/pi/local_mac_address_collect_post/write_enable.sh"
+echo ""
+echo "4, 再度書き込み禁止状態にするには以下のコマンドを実行してください。再起動後編集が不可能になります。"
+echo "   sh /home/pi/local_mac_address_collect_post/wtite_protect.sh"
+echo "###################################################"
