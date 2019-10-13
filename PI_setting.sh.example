@@ -223,8 +223,6 @@ module.exports = function (timeout) {
 
 EOS
 
-mv google-home google-home-notifier
-
 echo "###################################################"
 echo "MicroSDカードのOSを書き込み禁止の状態に設定します。"
 echo "###################################################"
