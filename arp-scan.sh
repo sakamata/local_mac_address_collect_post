@@ -82,8 +82,5 @@ then
   IP=$(sudo arp-scan -l --interface $net | grep -i $MAC | awk '{print $1}')
   name=$(echo $res | jq ".name" | sed "s/\"//g")
   message=$(echo $res | jq ".message" | sed "s/\"//g")
-  # 自宅テスト用
-  # node /home/pi/GoogleHomeTalk.js $IP $name $message
-  # 本番環境 
   node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $name $message
 fi

@@ -234,17 +234,15 @@ echo "###################################################"
 
 cd /home/pi
 # sudo bash
-sudo apt-get install -y rsync gawk busybox bindfs
+sudo apt-get install -y gawk bindfs
 sudo dphys-swapfile swapoff
 sudo dphys-swapfile uninstall
 sudo update-rc.d dphys-swapfile disable
-systemctl disable dphys-swapfile
+sudo systemctl disable dphys-swapfile
 git clone https://github.com/josepsanzcamp/root-ro.git
 rsync -va root-ro/etc/initramfs-tools/* /etc/initramfs-tools/
 sudo mkinitramfs -o /boot/initrd.gz
 sudo -- sh -c "echo 'initramfs initrd.gz' >> /boot/config.txt"
-
-exit
 
 echo "MicroSDカードのOSを書き込み禁止の状態に設定しました。"
 echo ""
