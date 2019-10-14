@@ -223,7 +223,7 @@ module.exports = function (timeout) {
   });
 };
 
-EOS
+EOF
 
 sudo chown pi:pi /home/pi/google-home/node_modules/google-tts-api/lib/key.js
 
