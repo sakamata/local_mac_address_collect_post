@@ -179,6 +179,7 @@ echo "動作が停止します(google-home)と記述された行で enterキー�
 echo "###################################################"
 
 npm init
+sudo chown pi:pi /home/pi/google-home/ -R
 # ここで enter 及び yes
 npm install google-home-notifier
 cd
@@ -232,7 +233,7 @@ echo "###################################################"
 
 cd /home/pi
 # sudo bash
-sudo apt-get install -y gawk bindfs
+sudo apt-get install -y rsync gawk busybox bindfs
 sudo dphys-swapfile swapoff
 sudo dphys-swapfile uninstall
 sudo update-rc.d dphys-swapfile disable
