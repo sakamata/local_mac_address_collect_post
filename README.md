@@ -246,26 +246,37 @@ sudo bash PI_setting.sh
 画面の指示に従って操作をしてください。   
 設定が完了するまでしばらく待ちます。   
 
-# cron 実行に必要な postfix のインストール
-
-```
-sudo apt -y install postfix
-```
-
-インストールの際以下の操作が必要です。
-- ダイアログで 了解を選び enter
-- 選択肢が出たら [了解]を押します tab enter と操作します
-- 次に[設定なし]を選択し enter と操作します
-
-# cronの起動
-
-```
-sudo /etc/init.d/cron start
-```
-
 # 起動確認
-1分程待ってからlivelynkのサイトを表示してください。   
+全ての設定が完了したらlivelynkのサイトを表示してみてください。   
 wi-fiに接続された端末が、仮の名前の来訪者として表示されていれば、無事設定完了となります。   
+
+1, 以下のコマンドを実行してGoogleHomeの発話を確認してください。   
+`192.168.XX.XX` 部分のIPアドレス と `GoogleHome端末名` をwi-fiネットワークで設定されているのもに書き換える必要があります。
+
+```
+node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js '192.168.XX.XX' 'GoogleHome端末名' 'ハロー'
+```
+
+2, 発話が確認できたら以下のコマンドでシャットダウンを行います。
+
+```
+shutdown now
+```
+
+シャットダウン後、モニター・キーボード・マウスの接続を外して再度電源を入れれば、常に滞在者の確認を行うようになります。
+
+
+3, 書き込み禁止を元に戻すには以下のコマンドを実行してください。再起動後編集が可能になります。
+
+```
+sh /home/pi/local_mac_address_collect_post/write_enable.sh
+```
+
+4, 再度書き込み禁止状態にするには以下のコマンドを実行してください。再起動後編集が不可能になります。
+
+```
+sh /home/pi/local_mac_address_collect_post/wtite_protect.sh
+```
 
 ***
 
