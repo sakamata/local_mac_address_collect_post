@@ -310,7 +310,7 @@ shutdown now
 再起動後編集が可能になります。
 
 ```
-sh /home/pi/local_mac_address_collect_post/write_enable.sh
+sudo sh /home/pi/local_mac_address_collect_post/write_enable.sh
 ```
 
 ## 4, 再度書き込み禁止状態にするには以下のコマンドを実行してください。
@@ -318,7 +318,7 @@ sh /home/pi/local_mac_address_collect_post/write_enable.sh
 再起動後編集が不可能になります。
 
 ```
-sh /home/pi/local_mac_address_collect_post/write_protect.sh
+sudo sh /home/pi/local_mac_address_collect_post/write_protect.sh
 ```
 
 ***
