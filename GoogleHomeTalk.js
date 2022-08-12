@@ -1,6 +1,11 @@
-const googlehome = require('/home/pi/google-home/node_modules/google-home-notifier')
-googlehome.ip(process.argv[2]); // GoogleHomeのIPアドレス
-googlehome.device(process.argv[3], 'ja');  //  GoogleHome の名前 言語指定
-googlehome.notify(process.argv[4], function (res) {
-    console.log(res);
-});
+const GoogleHomePlayer = require("/home/pi/google-home/node_modules/google-home-player")
+const ip = process.argv[2]
+const lang = "ja"
+const googleHome = new GoogleHomePlayer(ip, lang);
+
+(async () => {
+    await googleHome.say(process.argv[4], lang, false)
+    // await googleHome.say("first text")
+    // await googleHome.say("second text", "en") // 第二引数で言語を指定
+    // await googleHome.say("final text", "en", true) // 第三引数でslowの有効/無効を指定
+})()
