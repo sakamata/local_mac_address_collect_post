@@ -78,7 +78,7 @@ then
   MAC=${MAC,,} # 小文字に変換
   # GoogleHomeのMACAddressからIPを探して引数に使用
   IP=$(sudo arp-scan -l --interface $net | grep -i $MAC | awk '{print $1}')
-  name=$(echo $res | jq ".name" | sed "s/\"//g")
+#   name=$(echo $res | jq ".name" | sed "s/\"//g")
   message=$(echo $res | jq ".message" | sed "s/\"//g")
-  node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $name $message
+  node /home/pi/local_mac_address_collect_post/GoogleHomeTalk.js $IP $message
 fi
